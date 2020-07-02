@@ -2,43 +2,49 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'children_at_different_game_states.dart';
+import 'children_at_different_states.dart';
 
 
 // 2 Enums mit Richtungen und Game States
 enum Direction { LEFT, RIGHT, UP, DOWN }
 enum GameState { START, RUNNING, FAILURE }
 
+// Die Game Klasse mit dem Stateful Widget
 class Game extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _GameState();
 }
-
+/*Die Game State Klasse: Hier werden verschiedene Variablen initialisiert, die wir später brauchen.
+  Die Startdirection wird gesetzt und der GameState auf Start gesetzt.
+*/
 class _GameState extends State<Game> {
   var snakePosition;
-  Point newPointPosition;
-  Timer timer;
-  Direction _direction = Direction.UP;
   var gameState = GameState.START;
+  Direction _direction = Direction.UP;
+  Timer timer;
+  Point newPointPosition;
   int score = 0;
 
+//Dieses Widget ist das Widget, indem sich die Schalnge fortbewegen wird.
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         Container(
-          width: 320,
           height: 320,
+          width: 320,
           padding: EdgeInsets.all(29),
           decoration: BoxDecoration(
             border: Border(
+              //Borders werden weiss gemacht
               top: BorderSide(width: 4.0, color: Colors.white),
               bottom: BorderSide(width: 4.0, color: Colors.white),
               left: BorderSide(width: 4.0, color: Colors.white),
               right: BorderSide(width: 4.0, color: Colors.white),
             ),
           ),
+          //Der GestureDetector schuaut ob ein klick ausgeführt wurde.
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTapUp: (tapUpDetails) {
@@ -48,7 +54,8 @@ class _GameState extends State<Game> {
           ),
         ),
         Padding(
-          padding: EdgeInsets.only(left: 20.0, right: 20.0),
+          // Hier wird die Punkte anzeige gemacht.
+          padding: EdgeInsets.only(left: 60.0, right: 20.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
@@ -58,16 +65,19 @@ class _GameState extends State<Game> {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   border: Border.all(width: 1.0, color: Colors.white),
+                  //Mit BorderRadius kann die anzeige gerundet werden
                   borderRadius: BorderRadius.circular(50.0),
                 ),
+                //Nach dem Spiel wir der score angezeigt
                 child: Text(
-                  "Score\n$score",
+                  "Punkte\n$score",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
                   ),
                 ),
               ),
+              // Hier werden die 4 Buttons  gemacht, die für den Richtungswechsel gebraucht werden
               Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -130,7 +140,7 @@ class _GameState extends State<Game> {
       ],
     );
   }
-
+//handleTap methode um das Game zu starten wenn man tapped
   void _handleTap(TapUpDetails tapUpDetails) {
     switch (gameState) {
       case GameState.START:
@@ -143,50 +153,51 @@ class _GameState extends State<Game> {
         break;
     }
   }
-
+// startToRun Methode um die Schlange zu starten mit der Startrichtung nach oben
   void startToRunState() {
+    setGameState(GameState.RUNNING);
     startingSnake();
+    timer = new Timer.periodic(new Duration(milliseconds: 400), onTimeTick);
     generatenewPoint();
     _direction = Direction.UP;
-    setGameState(GameState.RUNNING);
-    timer = new Timer.periodic(new Duration(milliseconds: 400), onTimeTick);
-  }
 
+  }
+// startingSnake Methode findet den Mittelpunkt und setzt die Schlange
   void startingSnake() {
     setState(() {
       final midPoint = (320 / 20 / 2);
-      snakePosition = [
-        Point(midPoint, midPoint - 1),
-        Point(midPoint, midPoint),
-        Point(midPoint, midPoint + 1),
+        snakePosition = [
+          Point(midPoint, midPoint - 1),
+          Point(midPoint, midPoint),
+          Point(midPoint, midPoint + 1),
       ];
     });
   }
-
+//generatenewPoint Methode kreiert den Punkt auf dem Brett
   void generatenewPoint() {
     setState(() {
       Random rng = Random();
       var min = 0;
       var max = 320 ~/ 20;
-      var nextX = min + rng.nextInt(max - min);
       var nextY = min + rng.nextInt(max - min);
+      var nextX = min + rng.nextInt(max - min);
 
       var newRedPoint = Point(nextX.toDouble(), nextY.toDouble());
-
+//Wenn die Schlange den Punkt gefressen hat wird ein neuer generiert
       if (snakePosition.contains(newRedPoint)) {
         generatenewPoint();
-      } else {
+      }else{
         newPointPosition = newRedPoint;
       }
     });
   }
-
+// setGameState Methode um die game State zu setzen
   void setGameState(GameState _gameState) {
     setState(() {
       gameState = _gameState;
     });
   }
-
+//Widget das verschiedene Childs je nach Status des Games hat
   Widget _getChildBasedOnGameState() {
     var child;
     switch (gameState) {
