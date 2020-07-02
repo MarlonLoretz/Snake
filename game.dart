@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'children_at_different_states.dart';
+//import 'package:vibration/vibration.dart';
 
 
 // 2 Enums mit Richtungen und Game States
@@ -24,8 +25,9 @@ class _GameState extends State<Game> {
   Timer timer;
   Point newPointPosition;
   int score = 0;
+  int highscore = 0;
 
-//Dieses Widget ist das Widget, indem sich die Schalnge fortbewegen wird.
+//Dieses Widget ist das Widget, indem sich die Schlange fortbewegen wird.
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -55,13 +57,13 @@ class _GameState extends State<Game> {
         ),
         Padding(
           // Hier wird die Punkte anzeige gemacht.
-          padding: EdgeInsets.only(left: 60.0, right: 20.0),
+          padding: EdgeInsets.only(left: 10.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Container(
-                width: 100,
-                height: 100,
+                width: 80,
+                height: 80,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   border: Border.all(width: 1.0, color: Colors.white),
@@ -77,13 +79,36 @@ class _GameState extends State<Game> {
                   ),
                 ),
               ),
+          //Hier wird der Highscore ausgegeben
+          Padding(
+            padding: EdgeInsets.only(right: 35.0, left: 20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    width: 80,
+                    height: 80,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      border: Border.all(width: 1.0, color: Colors.white),
+                      borderRadius: BorderRadius.circular(50.0),
+                    ),
+
+                    child: Text(
+                      "Highscore\n$highscore",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               // Hier werden die 4 Buttons  gemacht, die für den Richtungswechsel gebraucht werden
               Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
                   Padding(
-                    padding: EdgeInsets.only(right: 50),
+                    padding: EdgeInsets.only(right: 40, left: 10),
                     child: RaisedButton(
                       onPressed: () {
                         setState(() {
@@ -94,6 +119,7 @@ class _GameState extends State<Game> {
                       child: Icon(Icons.keyboard_arrow_up),
                     ),
                   ),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
@@ -121,7 +147,7 @@ class _GameState extends State<Game> {
                     ],
                   ),
                   Padding(
-                    padding: EdgeInsets.only(right: 50),
+                    padding: EdgeInsets.only(right: 40, left: 10),
                     child: RaisedButton(
                       onPressed: () {
                         setState(() {
@@ -138,8 +164,20 @@ class _GameState extends State<Game> {
           ),
         ),
       ],
+    ),
+    ),
+    ],
     );
   }
+
+  void setHighscore(){
+    if(score > highscore){
+      highscore = score;
+    }else{
+      highscore = highscore;
+    }
+  }
+
 //handleTap methode um das Game zu starten wenn man tapped
   void _handleTap(TapUpDetails tapUpDetails) {
     switch (gameState) {
@@ -153,6 +191,7 @@ class _GameState extends State<Game> {
         break;
     }
   }
+
 // startToRun Methode um die Schlange zu starten mit der Startrichtung nach oben
   void startToRunState() {
     setGameState(GameState.RUNNING);
@@ -207,7 +246,7 @@ class _GameState extends State<Game> {
         });
         child = gameStartChild;
         break;
-
+//Falls das Game läuft wird eine List erstellt
       case GameState.RUNNING:
         List<Positioned> snakePiecesWithNewPoints = List();
         snakePosition.forEach(
@@ -215,12 +254,13 @@ class _GameState extends State<Game> {
             snakePiecesWithNewPoints.add(
               Positioned(
                 child: gameRunningChild,
-                left: i.x * 15.5,
                 top: i.y * 15.5,
+                left: i.x * 15.5,
               ),
             );
           },
         );
+ // hier wird ein neuer Snake punkt generiert
         final latestPoint = Positioned(
           child: newSnakePointInGame,
           left: newPointPosition.x * 15.5,
@@ -229,9 +269,11 @@ class _GameState extends State<Game> {
         snakePiecesWithNewPoints.add(latestPoint);
         child = Stack(children: snakePiecesWithNewPoints);
         break;
-
+// Falls das Game fertig ist wird ein neuer Container erstellt und die Punkte augegeben
       case GameState.FAILURE:
         timer.cancel();
+//        Vibration.vibrate(duration: 500);
+        setHighscore();
         child = Container(
           width: 320,
           height: 320,
@@ -248,37 +290,7 @@ class _GameState extends State<Game> {
     }
     return child;
   }
-
-  void onTimeTick(Timer timer) {
-    setState(() {
-      snakePosition.insert(0, getLatestSnake());
-      snakePosition.removeLast();
-    });
-
-    var currentHeadPos = snakePosition.first;
-    if (currentHeadPos.x < 0 ||
-        currentHeadPos.y < 0 ||
-        currentHeadPos.x > 320 / 20 ||
-        currentHeadPos.y > 320 / 20) {
-      setGameState(GameState.FAILURE);
-      return;
-    }
-
-    if (snakePosition.first.x == newPointPosition.x &&
-        snakePosition.first.y == newPointPosition.y) {
-      generatenewPoint();
-      setState(() {
-        if (score <= 10)
-          score = score + 1;
-        else if (score > 10 && score <= 25)
-          score = score + 2;
-        else
-          score = score + 3;
-        snakePosition.insert(0, getLatestSnake());
-      });
-    }
-  }
-
+// hier habe ich ein Switch case um die Richtung des Schlangenkopfes zu ändern
   Point getLatestSnake() {
     var newHeadPos;
 
@@ -305,4 +317,34 @@ class _GameState extends State<Game> {
     }
     return newHeadPos;
   }
+
+  void onTimeTick(Timer timer) {
+    setState(() {
+      snakePosition.insert(0, getLatestSnake());
+      snakePosition.removeLast();
+    });
+// Hier wird der Game Status geändert falls der Kopf in die Wand fährt
+    var currentHeadPos = snakePosition.first;
+    if (currentHeadPos.x < 0 ||
+        currentHeadPos.y < 0 ||
+        currentHeadPos.x > 320 / 20 ||
+        currentHeadPos.y > 320 / 20) {
+      setGameState(GameState.FAILURE);
+      return;
+    }
+// Hier werdem die Punkte berechnet Je länger die Schlange desto mehr Punkte gibts
+    if (snakePosition.first.x == newPointPosition.x &&
+        snakePosition.first.y == newPointPosition.y) {
+      generatenewPoint();
+      setState(() {
+        if (score <= 10)
+          score = score + 1;
+        else
+          score = score + 2;
+        snakePosition.insert(0, getLatestSnake());
+      });
+    }
+  }
+
+
 }
