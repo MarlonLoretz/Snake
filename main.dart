@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'game.dart';
+import 'package:fluttersnake/model/game.dart';
 
 
 //main methode um die App zu starten
@@ -10,8 +10,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Snake',
       home: Home(),
+      title: 'Snake',
       debugShowCheckedModeBanner: false,
     );
   }

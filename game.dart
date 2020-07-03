@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'children_at_different_states.dart';
+import 'package:fluttersnake/children/children_at_different_states.dart';
 //import 'package:vibration/vibration.dart';
 
 
