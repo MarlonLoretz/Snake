@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+//Container für das Klicken zu Beginnen Widget anzuzeigen
 final Widget gameStartChild = Container(
   width: 320,
   height: 320,
@@ -12,7 +13,7 @@ final Widget gameStartChild = Container(
     ),
   ),
 );
-
+//Widget un ein neues Snake Rectangle anzuzeigen
 final Widget gameRunningChild = Container(
   width: 15.5,
   height: 15.5,
@@ -21,7 +22,7 @@ final Widget gameRunningChild = Container(
     shape: BoxShape.rectangle,
   ),
 );
-
+//Widget um neuen Punkt anzuzeigen
 final Widget newSnakePointInGame = Container(
   width: 15.5,
   height: 15.5,
@@ -32,7 +33,7 @@ final Widget newSnakePointInGame = Container(
   ),
 );
 
-//Klasse für den Kopf der SChlange
+//Klasse für den Kopf der Schlange
 class Point {
   double x;
   double y;
